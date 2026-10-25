@@ -1,0 +1,38 @@
+# config/extract_rules.yaml —— kirikiri 台本字段映射（G1：与 per-game profile 分层）
+# 依据：原料区 scn/a01.txt.json 实物结构（2026-09-10 实测）；plan L0.4。
+# E1（L1.1）按本表实现提取；本表只锁字段路径，self/stage 归因算法属 E1 工序语义。
+
+engine: kirikiri_9nine
+source_format:
+  container: json                  # PSB 工具导出（同族 .txt.resx.json 为空壳头）
+  top_keys: [hash, name, outlines, scenes]
+  scene_keys: [firstLine, label, lines, nexts, spCount, texts]
+voice:
+  subdir: my                       # voice id 文件位于 voice/my/*.ogg（E1 missing 对账用）
+  id_pattern: "^my\\d{4}[a-z]?$"   # 允许 my1970a 尾缀变体
+
+dialogue:                          # 台词行 = scenes[s].texts[i] 六元组（带语音行实测形态）
+  speaker:    "texts[i][0]"        # str | null（null=旁白；EP1 全 2103 条中恰 1 条）
+  costume:    "texts[i][1]"        # str | null（登场服装标签）
+  text:       "texts[i][2]"        # 台词原文（含 ruby 标记 [表記,n] 与 \n）
+  voice_refs: "texts[i][3]"        # list[{name, pan, type, voice}]；voice=voice_id（对应 voice/*.ogg 主干名）
+  line_no:    "texts[i][4]"        # 行号（int）
+  stage_data: "texts[i][5]"        # {data: [...]} 舞台指令流（sprite 状态来源）
+
+narration:                         # 旁白形态（无语音）：[null, null, text, null, line_no, {data}]
+  speaker: null
+  voice_refs: null
+
+sprite_state:                      # 立绘/头像指令（data 流与 lines 指令流同构）
+  options_path: "<cmd>.redraw.imageFile.options"   # {dress, face, pose}
+  face: ".options.face"            # 日文表情标签 → contracts/face_map.yaml scn_faces
+  file: ".redraw.imageFile.file"   # 图像文件名（立绘切片/头像）
+  command_streams:
+    - "scenes[s].lines[i][2][j]"   # lines 指令流
+    - "scenes[s].texts[i][5].data[k]"  # 台词行内联舞台指令流
+
+notes:
+  - ruby 标记与 \n 的清洗口径由 E1 定（voice_map.text 为清洗后形态，L1.1 golden 对账）；
+  - voice_map 的 self（主角侧）与 stage（舞台位）块 = 对 sprite 指令流的状态归因，E1 工序语义；
+  - scn 目录中「- 副本」文件系人工工作副本，glob 模式（profile engine.scn_pattern）天然排除；
+  - "*.txt.resx（156B PSB 空壳头）为汉化空壳，探测归 E0（e0_input_check.py），提取不消费。"

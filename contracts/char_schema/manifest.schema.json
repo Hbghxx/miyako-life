@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "miyako_life/contracts/char_schema/manifest.schema.json",
+  "title": "manifest.yaml（life 执法案）",
+  "description": "语义权威 = pet tools/new_character.py 模板（契约 §2 R1）。required 集合 = 脚手架必产键 + life 强制追加（voice_tier，plan L4.3 伪码 2/1/0）。pet 侧对未知键宽松忽略，故 golden 样例带 life 追加键仍可被 pet 消费（双向互锁）。",
+  "type": "object",
+  "required": [
+    "package_id", "schema_version", "package_version", "spec_version",
+    "voice_tier", "assets", "fallbacks"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "package_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9_-]*$",
+      "description": "包 id；与 tools/new_character.py 的 package_id 规则一致"
+    },
+    "schema_version": { "const": 1, "description": "契约强制：schema_version: 1" },
+    "package_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+([-+][A-Za-z0-9.]+)?$"
+    },
+    "spec_version": {
+      "type": "string",
+      "pattern": "^miyako_v[0-9.]+$",
+      "description": "pet 运行时 spec 标识（激活层 resolver 消费）"
+    },
+    "generated_by": { "type": "string" },
+    "character_package_dir": { "type": "string" },
+    "voice_tier": {
+      "enum": [0, 1, 2],
+      "description": "life 强制（pack 落盘）：ref_audio_ready and dataset_ready → 2；elif edge_voice 非空 → 1；else 0（§0.4 伪码）"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "voice_map": {
+          "type": "object",
+          "required": ["path", "sha256", "entries"],
+          "additionalProperties": true,
+          "properties": {
+            "path": { "type": "string" },
+            "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$", "description": "L1 hash 冻结链" },
+            "entries": { "type": "integer", "minimum": 1 }
+          }
+        },
+        "voice_dir": { "type": "object", "additionalProperties": true },
+        "sprites_dir": { "type": "object", "additionalProperties": true }
+      }
+    },
+    "assets": {
+      "type": "object",
+      "required": ["sprite"],
+      "additionalProperties": true,
+      "properties": {
+        "sprite": {
+          "type": "object",
+          "required": ["manifest", "format"],
+          "additionalProperties": true,
+          "properties": {
+            "manifest": { "type": "string" },
+            "format": { "type": "string" },
+            "axes": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "expression": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "取值 ⊆ 9 元闭集（test_char_schema 互锁断言）"
+                }
+              }
+            }
+          }
+        },
+        "live2d": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "note": { "type": "string" }
+          }
+        },
+        "reference_audio": { "type": "object", "additionalProperties": true },
+        "audiofile": { "type": "object", "additionalProperties": true }
+      }
+    },
+    "emotion_map": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "face_to_emotion": {
+          "type": "object",
+          "additionalProperties": {
+            "enum": ["normal", "happy", "shy", "pout", "angry", "sad", "surprise", "thinking", "sleepy"]
+          },
+          "description": "游戏 face 标签 → 闭集；权威表 = contracts/face_map.yaml，此处为包内随附副本"
+        }
+      }
+    },
+    "first_person_stat": {
+      "type": "object",
+      "additionalProperties": { "type": "integer", "minimum": 0 }
+    },
+    "fallbacks": {
+      "type": "object",
+      "required": ["unknown_emotion", "empty_audiofile_bucket"],
+      "additionalProperties": false,
+      "properties": {
+        "unknown_emotion": { "const": "normal", "description": "契约硬约束：未知表情 fallback normal" },
+        "empty_audiofile_bucket": { "const": "normal" }
+      }
+    },
+    "game_assets_note": { "type": "string" }
+  }
+}

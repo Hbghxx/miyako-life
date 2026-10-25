@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "miyako_life/contracts/char_schema/tts_config.schema.json",
+  "title": "tts_config.yaml（life 执行案）",
+  "description": "语义权威 = pet tools/new_character.py 模板。统计段（replace_map/glossary/verbal_tics）由 E3 产出（write_scopes persona 身份）；edge_voice 由 pack 代写（override_rule）；gptsovits/audiofile 为深路径扩展段（pet 运行时消费）。",
+  "type": "object",
+  "required": [
+    "strip_actions",
+    "quote_guard",
+    "replace_map",
+    "glossary",
+    "verbal_tics"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "strip_actions": {
+      "type": "boolean"
+    },
+    "quote_guard": {
+      "type": "boolean"
+    },
+    "edge_voice": {
+      "type": "string",
+      "minLength": 1,
+      "description": "edge-tts 音色 id（纯数据留档）；缺失 = voice_tier 0（voice-less/无快路径形态，2026-09-16 schema 修正）"
+    },
+    "replace_map": {
+      "type": "object",
+      "required": [
+        "zh",
+        "ja"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "zh": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "ja": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "glossary": {
+      "type": "object",
+      "required": [
+        "zh",
+        "ja"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "zh": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "ja": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "verbal_tics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "zh",
+          "ja"
+        ],
+        "additionalProperties": true,
+        "properties": {
+          "zh": {
+            "type": "string",
+            "minLength": 1
+          },
+          "ja": {
+            "type": "string",
+            "minLength": 1
+          },
+          "rate_ja": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "rate_zh": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        }
+      },
+      "description": "中日成对口癖后缀（E3 统计产出，成对概率合计 ≤0.6，出厂复扫）；空表合法（EP1 实测）"
+    },
+    "gptsovits": {
+      "type": "object",
+      "required": [
+        "api_url",
+        "reference_audio",
+        "prompt_text",
+        "prompt_lang"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "api_url": {
+          "type": "string",
+          "pattern": "^https?://"
+        },
+        "text_lang": {
+          "type": "string"
+        },
+        "text_split_method": {
+          "type": "string"
+        },
+        "streaming_mode": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "reference_audio": {
+          "type": "string",
+          "minLength": 1,
+          "description": "相对包根的参考音频路径（零沉候选）"
+        },
+        "prompt_text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "prompt_lang": {
+          "type": "string",
+          "minLength": 1
+        },
+        "candidates_meta": {
+          "type": "string"
+        }
+      },
+      "description": "深路径四级链①级（api_v2）；pack 代写（proxy_write）目标"
+    },
+    "audiofile": {
+      "type": "object",
+      "required": [
+        "root"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "root": {
+          "type": "string",
+          "minLength": 1
+        },
+        "clip_format": {
+          "type": "string"
+        },
+        "fallback_emotion": {
+          "type": "string",
+          "enum": [
+            "normal",
+            "happy",
+            "shy",
+            "pout",
+            "angry",
+            "sad",
+            "surprise",
+            "thinking",
+            "sleepy"
+          ]
+        }
+      }
+    }
+  }
+}

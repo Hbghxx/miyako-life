@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "miyako_life/contracts/char_schema/character_card.schema.json",
+  "title": "character_card.yaml（life 执法案）",
+  "description": "语义权威 = pet tools/new_character.py 模板 + persona.py 消费键。required = 脚手架必产键 + life 强制追加（honesty_boundary 诚实边界必填段，契约 §六 E4，不占五层位）。五层落位：persona/personality/values≈P1 心智，speech_style≈P2 表达（量化统计由 E3 承载），tone_examples≈P3 语气示例（9 情绪×2 条 dialog_v1），behavior_rules≈P4 行为规则（if-then），anti_patterns≈P5 禁忌反模式（E6 断言依据）。",
+  "type": "object",
+  "required": [
+    "display_name", "name", "description", "persona", "personality",
+    "values", "taboos", "speech_style", "tone_examples", "honesty_boundary"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "package_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_-]*$" },
+    "schema_version": { "const": 1 },
+    "package_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+([-+][A-Za-z0-9.]+)?$"
+    },
+    "spec_version": { "type": "string", "pattern": "^miyako_v[0-9.]+$" },
+    "display_name": { "type": "string", "minLength": 1 },
+    "name": { "type": "string", "minLength": 1, "description": "角色名（脚手架置 package_id，life 置角色本名）" },
+    "name_zh": { "type": "string" },
+    "name_en": { "type": "string" },
+    "description": { "type": "string", "minLength": 1 },
+    "persona": {
+      "type": "string",
+      "minLength": 1,
+      "description": "P1 心智模型落位：跨情境稳定的核心人格叙述；出厂检查对 persona 段做 estimate_tokens ≤ pet 预算 30% 断言"
+    },
+    "personality": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "values": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "taboos": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 },
+      "description": "产品级护栏（与角色无关）；角色级 P5 反模式落 anti_patterns"
+    },
+    "speech_style": {
+      "type": "object",
+      "required": ["first_person", "calls_you", "register"],
+      "additionalProperties": true,
+      "properties": {
+        "first_person": { "type": "string", "minLength": 1 },
+        "calls_you": { "type": "string", "minLength": 1 },
+        "register": { "type": "string", "minLength": 1 },
+        "politeness_ratio": { "type": "number", "minimum": 0, "maximum": 1 },
+        "notes": { "type": "string" }
+      }
+    },
+    "tone_examples": {
+      "type": "object",
+      "required": ["normal", "happy", "shy", "pout", "angry", "sad", "surprise", "thinking", "sleepy"],
+      "additionalProperties": false,
+      "propertyNames": {
+        "enum": ["normal", "happy", "shy", "pout", "angry", "sad", "surprise", "thinking", "sleepy"]
+      },
+      "patternProperties": {
+        "^(normal|happy|shy|pout|angry|sad|surprise|thinking|sleepy)$": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "string",
+            "pattern": "^\\[e:(normal|happy|shy|pout|angry|sad|surprise|thinking|sleepy)\\][^|]+\\|.+$",
+            "description": "dialog_v1 行式：[e:情绪]中文|日本語（构建时逐行过契约 parse）"
+          }
+        }
+      }
+    },
+    "corpus_tone_examples": {
+      "type": "object",
+      "additionalProperties": false,
+      "propertyNames": {
+        "enum": ["normal", "happy", "shy", "pout", "angry", "sad", "surprise", "thinking", "sleepy"]
+      },
+      "patternProperties": {
+        "^(normal|happy|shy|pout|angry|sad|surprise|thinking|sleepy)$": {
+          "type": "object",
+          "required": ["text", "voice_id"],
+          "additionalProperties": true,
+          "properties": {
+            "text": { "type": "string", "minLength": 1 },
+            "voice_id": { "type": "string", "minLength": 1 },
+            "duration": { "type": "number", "exclusiveMinimum": 0 },
+            "note": { "type": "string" }
+          }
+        }
+      },
+      "description": "产线语料溯源段（真实台词 + voice_id + 时长）；雏形已有，pet 侧 M2+/M+1 升级消费"
+    },
+    "behavior_rules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["if", "then"],
+        "additionalProperties": true,
+        "properties": {
+          "if": { "type": "string", "minLength": 1 },
+          "then": { "type": "string", "minLength": 1 },
+          "source": { "type": "string", "description": "规则出处（女娲决策启发式 / GCS Layer 4 双源）" }
+        }
+      },
+      "description": "P4 行为规则（if-then 形态）；E4 产出（L2.3），此处先行定义接受形态"
+    },
+    "anti_patterns": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 },
+      "description": "P5 禁忌反模式（E6 断言依据）；与产品级 taboos 分离"
+    },
+    "honesty_boundary": {
+      "type": "object",
+      "required": ["in_game_only", "no_user_world_claims", "corpus_cutoff"],
+      "additionalProperties": true,
+      "properties": {
+        "in_game_only": {
+          "const": true,
+          "description": "只知语料内事实，不知剧情外之事"
+        },
+        "no_user_world_claims": {
+          "const": true,
+          "description": "不充当用户现实世界的知识/判断权威"
+        },
+        "corpus_cutoff": {
+          "type": "string",
+          "minLength": 1,
+          "description": "语料版本截止声明"
+        },
+        "notes": { "type": "string" }
+      },
+      "description": "诚实边界必填段（契约 §六 E4；不占五层位；消费者 = persona prompt 人格约束）"
+    }
+  }
+}

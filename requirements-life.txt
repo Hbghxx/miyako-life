@@ -1,0 +1,11 @@
+# miyako_life 差量依赖清单（v2.0 环境定案）
+# 装入宿主 conda env GPT-SoVITS，不新建 venv/conda；
+# 运行沿用 python -s 密封模式（PYTHONNOUSERSITE=1）。
+# 原则：本清单是宿主环境的严格子集 + 纯 wheel 包，避免与训练依赖冲突。
+# Pillow 视 E2（L1.3 立绘索引）实际需要再定，本阶段不装。
+
+pytest>=8.0
+jsonschema>=4.20
+# 繁→简转换（2026-09-11 用户批准）：Steam 官方繁中台本 → 简体入库（E1 embedded 变体）
+# 纯 Python 重实现，自带 OpenCC 词典（tw2s），确定性无 LLM（L4 合规）
+opencc-python-reimplemented>=0.1.7

@@ -1,0 +1,26 @@
+# contracts/write_scopes.yaml —— persona / voice / pack 三方写权限（契约 §2.1 R4 重写版）
+# 落盘依据：plan L0.3。L3 写权限显式化：每个产物的写入方必须在此声明，
+# pack/factory_check 执法；edge_voice 与 manifest 只能 pack 写（§0.2 L3）。
+#
+# ── 装配规则注记（plan L0.3 追加，2026-09-13 立绘生产链裁决更新）─────
+# 包内全部文件由 pack 物理写入（装配者唯一），内容所有权归各产出工序。
+# sprites/manifest.json：内容生产者 = **pet 侧 tools/compose_all_sprites.py**
+# （外部生产者，2026-09-13 裁决：pet 侧更新优化的立绘提取思路为权威实现）；
+# E2 v2 = 验收器（闭集互锁/文件存在性/需求模拟，不自产 manifest）；
+# pack 直通装配 E2 验收过的 work/sprites_manifest.json（proxy_write 同构）。
+# 契约侧是否增设 upstream 身份待定案（审评 Y3 开放项）；现状=三方身份 +
+# shared_read 承载跨工序读取。
+# ────────────────────────────────────────────────────────────────────
+persona:
+  write: [character_card.yaml, relationship.yaml, tts_config.yaml]
+  # tts_config 由 E3 统计产出；edge_voice 字段由 pack 代写（见 override_rule）
+voice:
+  write: [reference_audio/ref/, reference_audio/dataset/, audiofile/]
+pack:                                # 🔑 新增身份（R4）
+  write: [manifest.yaml]             #   schema_version / voice_tier / 装配字段
+  proxy_write:                       #   代写语义：读 decisions.yaml 后落盘
+    - {target: tts_config.yaml#edge_voice, source: voice_decisions.yaml}
+shared_read: [voice_map.json, sprites/manifest.json]
+override_rule: >
+  edge_voice：快路径=pack 代写（读快路径决策）；深路径（voice_tier:2 达成）=
+  pack 可覆盖（读 V3 验收结果）。persona/voice 工序均不直接写此字段。

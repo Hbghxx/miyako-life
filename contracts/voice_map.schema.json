@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "miyako_life/contracts/voice_map.schema.json",
+  "title": "voice_map.json v2",
+  "description": "全产线单一事实源（L1）。结构按实物导出：原料区 scn/voice_map.json v2（2103 条，sha256 冻结 d319f4bd…，2026-09-10 验证）。text_zh/origin 为 E1.5 双语扩展（可选；缺席即 E1 日文侧原生状态）。speaker=null 表示旁白。",
+  "type": "array",
+  "minItems": 1,
+  "items": {
+    "type": "object",
+    "required": ["voice", "speaker", "text"],
+    "additionalProperties": false,
+    "properties": {
+      "voice": {
+        "type": "string",
+        "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+        "description": "voice_id，对应 voice/ 目录下 .ogg 文件名主干"
+      },
+      "speaker": {
+        "type": ["string", "null"],
+        "description": "说话人名（如「都」）；null=旁白（数据锚点：全 2103 条中恰 1 条）"
+      },
+      "costume": {
+        "type": ["string", "null"],
+        "description": "登场服装/造型标签，可为 null"
+      },
+      "text": {
+        "type": "string",
+        "minLength": 1,
+        "description": "日文台词原文（E1 产出；永不为空）"
+      },
+      "text_zh": {
+        "type": ["string", "null"],
+        "description": "中文译文（E1.5 产出；E1 阶段字段缺席）"
+      },
+      "origin": {
+        "enum": ["native", "translated", "localized"],
+        "description": "语料来源标记：native=日文原文；translated=E1.5 机翻补缺；localized=官方汉化经确定性字形转换（2026-09-11 用户定案：机翻禁入 P1/P2/P4，官方汉化准入）。缺席视为 native。统计工序据此区分语料质量"
+      },
+      "self": {
+        "$ref": "#/$defs/stageBlock",
+        "description": "该台词触发时的主角侧立绘状态；可为 null"
+      },
+      "stage": {
+        "type": ["array", "null"],
+        "items": {
+          "$ref": "#/$defs/stageBlock"
+        },
+        "description": "舞台立绘状态列表（元素可为 null）"
+      }
+    }
+  },
+  "$defs": {
+    "stageBlock": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "char": { "type": ["string", "null"] },
+        "file": { "type": ["string", "null"] },
+        "dress": { "type": ["string", "null"] },
+        "face": { "type": ["string", "null"], "description": "游戏表情标签（日文原文；映射经 contracts/face_map.yaml → 9 元闭集）" },
+        "pose": { "type": ["string", "null"] },
+        "add": { "type": ["string", "null"] },
+        "pos": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

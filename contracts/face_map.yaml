@@ -1,0 +1,81 @@
+# contracts/face_map.yaml —— 游戏表情 → 9 元闭集（per-game；契约 L7 + plan L0.1）
+# 闭集语义权威 = contracts/emotion_defs.py（sync 自 pet @1610ea5）；未知/缺失 → fallback normal。
+# 词表来源（2026-09-10 实测，原料区 scn/voice_map.json v2 sha256 d319f4bd…）：
+#   sprite_faces = fgimage/output/ 合成立绘文件名表情轴（104 张，9 情绪 + back）；
+#   scn_faces    = voice_map 条目 self/stage.face 日文标签全集（41 种，含复合 顔_X:手_Y）。
+# 裁定依据：与用户手工雏形 miyako.char manifest.emotion_map.face_to_emotion 逐条对齐
+# （21 条交集以雏形为准）；雏形未覆盖的 20 条按同族语义归桶，后续实测修订走本文件。
+
+game_id: 9nine_ep1
+fallback: normal
+
+# ── 合成立绘表情轴（E2 立绘索引消费；9 词 ↔ 闭集 9 元双射，back 显式归 normal）──
+sprite_faces:
+  neutral: normal
+  happy: happy
+  love: shy            # 恋爱羞赧系 → shy（双射设计中 shy 的唯一来源）
+  sulky: pout
+  angry: angry
+  sad: sad
+  surprised: surprise
+  confused: thinking   # 困惑/きょとん系 → 思考槽位（双射设计中 thinking 的唯一来源）
+  sleepy: sleepy
+  back: normal         # 背面立ち絵，非情绪——显式归 normal（adapt_sprites_manifest 同裁定）
+
+# ── scn 台本 face 标签（voice_map 全集实测 41 种；情绪桶归一消费，E3/E2 共用）──
+scn_faces:
+  通常: normal
+  真面目: normal        # 雏形裁定：认真脸归 normal（非思考桶）
+  "顔_通常:手_通常": normal
+  "顔_真面目:手_真面目": normal
+  笑み: happy
+  にっこり: happy
+  微笑: happy
+  うふふ: happy
+  "Ｑ笑み": happy
+  "Ｑ微笑": happy
+  "Ｑにやり": happy
+  ウインク: happy
+  "顔_笑み:手_笑み": happy
+  苦笑: shy            # 雏形裁定：苦涩羞笑 → shy
+  うっとり: shy
+  キス: shy
+  てへぺろ: shy
+  見つめ: shy          # 凝视 → shy（うっとり/キス同族）
+  拗ね: pout
+  ふふん: pout          # 雏形裁定：鼻哼得意 → pout
+  "Ｑふふん": pout
+  どや: pout            # 得意显摆脸 → pout（ふふん同族）
+  怒り: angry
+  ぷんすか: angry
+  説教: angry
+  睨み: angry
+  嘲笑: angry
+  "顔_怒り:手_怒り": angry
+  悲しみ: sad
+  不安: sad             # Y4 face 极端度与悲しみ同列
+  ため息: sad
+  とほほ: sad
+  驚き: surprise
+  慌て: surprise
+  きょとん: thinking    # 雏形裁定：发懵 → thinking
+  ジト目: thinking      # 雏形裁定：半睁眼无语 → thinking
+  呆れ: thinking        # 无语埋怨 → thinking（ジト目同族）
+  "顔_呆れ:手_呆れ": thinking
+  思案: thinking
+  戸惑い: thinking      # 困惑踌躇 → thinking（きょとん同族）
+  怠惰: sleepy
+
+# ── scn 服装/站位词 → 合成立绘轴（E2 需求模拟消费；voice_map self.dress/pose 实测词表）──
+# 未收录值（如 裸/None）不参与立绘需求模拟，计入 meta.unmapped_dresses。
+dress_map:
+  私服: casual
+  制服: uniform
+  ウェイトレス: waitress
+  制服パーカー: parka
+pose_map:
+  正面: stand
+  正面腕下: stand
+  右向き: right
+  左向き: left
+  後ろ: back

@@ -1,0 +1,30 @@
+# ── 约束 B：游戏资产禁区（plan §0.3）─────────────────────
+# 原料与中间产物只允许存在于 work/；dist/ 为发布产物；均不入 git
+work/
+dist/
+
+# 游戏资产扩展名永不入库（执法测试：test_no_game_assets_in_git.py）
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.webp
+*.ogg
+*.wav
+*.mp3
+*.flac
+*.m4a
+
+# ── Python 运行时 ────────────────────────────────────────
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+
+# ── 密钥（LLM key 放 .env，plan §0.4）────────────────────
+.env
+
+# ── 会话工具状态（非项目内容）──────────────────────────
+.mimosa/
+card/

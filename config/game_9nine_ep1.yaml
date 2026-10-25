@@ -1,0 +1,83 @@
+# config/game_9nine_ep1.yaml —— 游戏 profile（契约 §3.2 全貌 + §3.1 llm/cost 节）
+# 依据：miyako_life 方案契约 v1.0.4 §3.2；plan.md L-0.2
+# 注释即决策档案：每处 🔒/裁定注记均可追溯到 plan/设计思路对应条目，勿随手删改。
+game_id: 9nine_ep1
+character:
+  package_id: miyako
+  display_name: "都"            # 品牌展示名（托盘/气泡；2026-09-13 用户裁定回归雏形卡值）
+  name: 九條 都                 # 身份全名（2026-09-13 profile 化——原 e4 CARD_IDENTITY 硬编码搬入）
+  name_zh: 九条都
+  name_en: Kujou Miyako
+  calls_you: 幻想乡             # 用户偏好称呼（雏形卡同值；assemble_card 读取，重跑不再回退）
+  speaker_names: ["都", "九條"]
+  protagonist_speakers: ["巧"]
+engine:
+  extractor: kirikiri_9nine
+  scn_pattern: "scn/a*.txt.json"
+  voice_dir: voice/
+  voice_ext: ".ogg"
+input:
+  # 🔒 锁定字段：build/E0 均不得覆写本值（L-0.2 验收项）。
+  # 2026-09-11 用户定案翻案：translate → embedded——Steam 版 .scn 为官方三语内嵌
+  # （每句 [日文, 英文, 繁中] 平行节点，繁体专用字二进制探测+FreeMote 反编译实证），
+  # 同节点与 voice 引用天然对齐（alignment 问题消失）；E1.5 机翻降级为补缺角色。
+  # 语义：非 auto 即锁定态——E0 只做探测值一致性校验（不一致 fail-fast），不做回填；
+  #       auto 才允许 E0 探测后回填实际值并锁定（契约 §3.2）。
+  # embedded 证据：steam 台本目录（input.steam_json_dir 或缺省
+  #   <原料区>/../miyako_life材料库/分类整理/01_日语台本）内含多语言反编译 json。
+  bilingual_source: embedded
+  steam_json_dir: ""            # 缺省 = <原料区>/../miyako_life材料库/分类整理/01_日语台本
+sprites:
+  # ── v2 转型（2026-09-13 裁决）：合成 = pet 侧 tools/compose_all_sprites.py（全枚举
+  #    + expressions_extra + accessories）；E2 = 验收器（不自产 manifest）；生产源 = 材料库。
+  compose_dir: ""               # 合成产物归档位（须含 manifest.json 及其引用 PNG = pet 包 sprites
+                                #   子集的复制）；空 = 缺省 <材料库>/fgimage/sprites_pkg。Y11：缺失 fail-fast
+  axes: {costume: 5, expression: 9, pose: 3}   # costume 含 naked（default=casual 别名）；
+                                #   expression=9 元闭集（闭集外差分入 expressions_extra）；pose A/B/C+背影
+tts:
+  ref_pick: {min_sec: 5, max_sec: 10, per_emotion: 3}
+  slice: {min_sec: 2, max_sec: 15, sample_rate: 32000}
+audiofile: {per_emotion: 20}
+persona:
+  arc_chapters: {start: a01, trust_established: a17}
+  #   〔2026-09-13 用户语料事实修正〕a15 为演出章（无对话句），弧线尾锚 a15→a17：
+  #   桶内 a01=4 / a17=3 两端已天然覆盖，V1 桶选句无需改动。
+  exclude_chapters: [a15]       # 演出章禁入 P 层抽样池（用户裁定 2026-09-13）：53 条演出
+                                #   行（scn 首现归 a15）不进 E4/E6 归纳与回查；仅限 P 层池——
+                                #   E3 统计与 V1 dataset 锚点不受影响。自证隔离：排除项由
+                                #   人工裁定入 profile，不由 E4 自生成。
+  sample_quota:                 # G2：分层配额公式化
+    mind_model: {per_emotion: 11, arc_segments: 2}   # 9情绪×2弧线段≈100
+    heuristics: {per_situation_class: 10}
+    signature: 30
+  daily_corpus_blocklist: [深沢, 九十九, アンチノミック, 伊作, 九九]
+  #   日常态过滤词表（勾选=加入剔除名单）：命中词的台词整句剔出 P 层日常语料池。
+  #   沿革：9-11 初判空表（三信号低、日常实体宁空勿造）；✅ 2026-09-19 用户复核
+  #   翻案——人名地名不进桌宠日常语料。池影响实测仅 4/2049 条命中（a05/a07）；
+  #   アンチノミック/伊作/九九 零命中为惰性条目（留档=完整候选裁定）。
+  #   绑定 voice_map 835317ba；接入 EP2+ 时按 Y4 流程重新生成。
+  refine_loop_max: 2            # Y9：自动重提炼上限，超出转人工裁定
+  prompt_budget_tokens: 2000    # D16 密化目标：card system 段 token 上限（口径=pet estimate_tokens：
+                                #   CJK 1字=1token、其余 len//4）。P4 行为规则按证据形态（explicit 优先）
+                                #   +复现数降序填充至预算内，超出部分留 e4_persona.json 审计层
+  tone_min_chars: 10            # 语气示例最短中文长度（同盲测 MIN_SENT_LEN 先例）：滤除纯叹词/
+                                #   省略号类零信号句；合格样本不足时降级补齐（宁短勿空）
+  coverage_min_explicit: 3      # E6 覆盖面断言：四维各 ≥N 条 explicit 证据（契约 §六）
+  tension_words: [殺人, 犯人, 死, 異能, 能力]   # Y4②b 紧张词共现种子（契约 §六 Y4；EP2+ 可校准）
+voice_tier_policy: {quick_voice: true, deep_voice: true}
+llm:                            # 契约 §3.1：按职能路由；key 在 .env（BYOK），不入库
+  base_url: https://open.bigmodel.cn/api/coding/paas/v4   # 2026-09-11 用户定案：coding 端点
+  induce:    {impl: api, model: glm-5.3}        # E4 五层提炼：质量优先（2026-09-11 用户定案）
+  judge:     {impl: api, model: glm-5.3-flash}  # E6 方向判定（独立判定槽防自证）
+  translate: {impl: api, model: glm-5.3-flash}  # E1.5（仅 translate 路径启用）
+cost:
+  quota_warning: 5.0            # 单次 build 成本警告阈值（元），实测值入报告页
+pack:
+  # ── L4.3 出包装配 ──
+  package_version: "2.0.0"      # 包版本（manifest.package_version）；2026-09-19 用户令
+                                #   全量重跑产 v2 卡（spec_version 维持 miyako_v1.9——
+                                #   D16：spec bump 前 pet 白名单先行，未动）
+  spec_version: "miyako_v1.9"   # pet 运行时 spec 标识
+  max_prompt_tokens: 2662       # 出厂检查硬线 = pet system 池 0.65×4096（记忆段初期存活断点）
+  gptsovits_root: "E:/game/gal/tool/GPT-SoVITS-miyako-share"   # TTS 权重随卡来源（重训位，
+                                #   2026-09-16 用户裁定"炼好的 tts 跟着 card 走"）：取最新 miyako_e*/e* 权重

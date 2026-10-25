@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "miyako_life/contracts/char_schema/relationship.schema.json",
+  "title": "relationship.yaml（life 执行案）",
+  "description": "语义权威 = pet tools/new_character.py 模板（契约四分支 0-20/20-50/50-80/80+，首中即停）。affection/trust 两维 0~100。",
+  "type": "object",
+  "required": ["version", "dimensions", "branches"],
+  "additionalProperties": true,
+  "properties": {
+    "version": { "const": 1 },
+    "note": { "type": "string" },
+    "dimensions": {
+      "type": "object",
+      "required": ["affection", "trust"],
+      "additionalProperties": false,
+      "properties": {
+        "affection": { "$ref": "#/$defs/dimension" },
+        "trust": { "$ref": "#/$defs/dimension" }
+      }
+    },
+    "branches": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "required": ["name", "min", "max", "tone_hint"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "min": { "type": "integer", "minimum": 0, "maximum": 100 },
+          "max": { "type": "integer", "minimum": 0, "maximum": 100 },
+          "tone_hint": { "type": "string", "minLength": 1 }
+        }
+      },
+      "description": "契约四分支；边界链 0→20→50→80→100 由 test_char_schema 断言"
+    }
+  },
+  "$defs": {
+    "dimension": {
+      "type": "object",
+      "required": ["min", "max", "initial", "per_reply_delta"],
+      "additionalProperties": false,
+      "properties": {
+        "min": { "type": "integer", "minimum": 0 },
+        "max": { "type": "integer", "maximum": 100 },
+        "initial": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "per_reply_delta": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": { "type": "integer" }
+        }
+      }
+    }
+  }
+}

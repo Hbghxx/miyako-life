@@ -1,0 +1,47 @@
+# contracts/interface.yaml —— life ↔ pet 字段级产消对账表正本（协调单 L-1，2026-09-14）
+# 状态语义：live = 双侧确认消费中；reserved = life 超前产出、待 pet 拉取
+#   （D16：消费清单=拉取队列非天花板）；aligned-copy = life 持有的 pet 事实快照，
+#   pet 源演进时须同步（本表自身也在此列）。
+# 消费侧权威 = pet（P-2 承诺清单交付后逐条核对 commit 号）；本表 CI 断言：
+#   ①产而不申报红灯（life schema 字段必须在本表登记）；
+#   ②live 字段消费缺失红灯（配对 pet 镜像清单，P-2 交付后启用）。
+character_card:
+  package_id:        {producer: life/pack,    consumer: pet/激活层,            status: live}
+  schema_version:    {producer: life/pack,    consumer: pet/constants.py KNOWN_SCHEMA_VERSIONS, status: live}
+  display_name:      {producer: life/profile, consumer: pet/persona.py+托盘,   status: live}
+  name/name_zh/name_en: {producer: life/profile, consumer: pet/展示+E6,      status: live}
+  description:       {producer: life/E4-P1,   consumer: pet/persona.py,        status: live}
+  persona:           {producer: life/E4-P1,   consumer: pet/persona.py,        status: live}
+  personality:       {producer: life/E4-P1,   consumer: pet/persona.py,        status: live}
+  values:            {producer: life/E4-P1,   consumer: pet/persona.py,        status: live}
+  taboos:            {producer: life/E4,      consumer: pet/persona.py,        status: live}
+  speech_style:      {producer: life/E4+profile, consumer: pet/persona.py,     status: live}
+  tone_examples:     {producer: life/E4-P3,   consumer: pet/persona.py few-shot + orchestrator 文本兜底, status: live}
+  behavior_rules:    {producer: life/E4-P4,   consumer: "pet/persona.py（P-1 承诺，交付后转 live）", status: reserved}
+  anti_patterns:     {producer: life/E4-P5,   consumer: "pet/persona.py（P-1 承诺）", status: reserved}
+  honesty_boundary:  {producer: life/E4,      consumer: "无——2026-09-14 用户裁定不渲染（审计元数据），pet P-1 已剔除", status: reserved}
+  corpus_tone_examples: {producer: "pack（M+1 前留空）", consumer: pet/orchestrator M+1 原声兜底, status: reserved}
+manifest:
+  package_id/schema_version/spec_version: {producer: life/pack, consumer: pet/激活层, status: live}
+  voice_tier:       {producer: life/pack, consumer: pet/激活层, status: live}
+  assets:           {producer: life/pack, consumer: pet/资源装配, status: live}
+  fallbacks:        {producer: life/pack, consumer: pet/sprite_manager+voice 降级, status: live}
+  emotion_map:      {producer: life/pack, consumer: pet/preflight, status: live}
+  first_person_stat: {producer: life/E3,  consumer: pet/preflight, status: live}
+relationship:
+  dimensions/branches: {producer: "golden 样本（pet 契约四分支）", consumer: pet/relationship.py, status: live}
+tts_config:
+  replace_map/glossary: {producer: life/E3, consumer: pet/voice_postprocess, status: live}
+  verbal_tics:      {producer: life/E3, consumer: pet/voice_postprocess, status: live}
+  edge_voice:       {producer: life/E3 缺省+pack 代写, consumer: "无——预录层停用，纯数据留档（恢复时复用）", status: reserved}
+sprites_manifest:
+  sprites/emotion_set/default 别名/dormant: {producer: "pet compose_all_sprites（E2 验收直通）", consumer: pet/sprite_manager, status: live}
+  expressions_extra/accessories: {producer: pet compose, consumer: pet/渲染端, status: live}
+aligned_copies:
+  - contracts/emotion_defs.py          # 权威=pet server/emotion_defs.py（commit 1610ea5）
+  - contracts/face_map.yaml            # 对齐雏形 emotion_map + pet compose EMOTION_KEY
+  - contracts/estimation.py            # 对齐 pet server/tokens.py
+  - contracts/golden_pair/             # 对齐 pet tools/new_character.py 模板
+  - 出厂检查单（pack/factory_check.py）  # 对齐 pet preflight 十四项
+  - E6 dialog_v1 浅校验                 # 对齐 pet v1.9.5 多段行判别（浅版）
+  - 本文件消费清单                      # 对齐 pet P-2 镜像清单（待交付）

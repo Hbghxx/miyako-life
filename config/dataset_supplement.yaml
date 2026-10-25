@@ -1,0 +1,22 @@
+# config/dataset_supplement.yaml —— 人工策展训练集增补（2026-09-14 用户听审挑选）
+# 语义：myb_sys 系统语音 = "对屏幕另一头玩家的关注感"语域（正篇语料结构性缺失），
+#       开心 dayo 腔——桌宠最高频使用场景的原生 register。
+# 纪律：策展 + 人工转写 = 人工裁定（L4 允许，非 LLM 生成）；产线不做 ASR，转写由用户提供。
+# 执行：V1 build_dataset 在 voice_map 选择后确定性追加（同款 0.4s 垫尾），重跑不丢。
+# 锚点：dataset = 1459（voice_map）+ N（本表）= 1466；来源目录缺文件 fail-fast。
+source_dir: "miyako_life材料库/vioce/my"   # 相对原料区父目录（与 steam_json_dir 同区）
+entries:
+  - id: myb_sys0002
+    text: "Nine、9月9日、この色"
+  - id: myb_sys0003
+    text: "Nine、9月9日、この色、体験版です"
+  - id: myb_sys0008
+    text: "公式サイトに飛ぶね。"
+  - id: myb_sys0016
+    text: "ショートカットの確認画面だよ？"
+  - id: myb_sys0018
+    text: "元に戻してもいい？"
+  - id: myb_sys0019
+    text: "タイトルに戻るね？"
+  - id: myb_sys0021
+    text: "これで大丈夫？"
